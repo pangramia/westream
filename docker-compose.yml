@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+  ws-nginx:
+    build:
+      context: ws-nginx
+      dockerfile: Dockerfile
+    image: registry.gitlab.com/aperez4/ws/ws-nginx:latest
+    networks:
+      private:
+        # the aliases are not required, but are useful if the applications want to internally
+        # reference each other by host name
+        aliases:
+        - "ws-nginx"
+      public:
+    ports:    
+      - "9802:80"  
+    labels:
+      - "constraints.zone=ws"
+      - "traefik.http.routers.ws-nginx.rule=PathPrefix(`/`)"
+      - "traefik.http.services.ws-nginx.loadbalancer.server.port=80"
+      - "traefik.backend=ws-nginx"
+      - "traefik.port=80"
+      #- "traefik.backend.healthcheck.path=/health"
+      - "traefik.enable=true"
+    # volumes are commented due to manual copy in circle config.xml
+    # volumes:
+      # - ./fp-server/html:/usr/local/openresty/nginx/html
+      # - ./fp-server/templates:/usr/local/openresty/nginx/templates
+      # - ./fp-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf 
+      # this differs from a normal -v folder mount to maintaine with/out traefik 
+      # - ./fp-server/conf/conf.d/default-traefik.conf:/etc/nginx/conf.d/default.conf
+
+networks:
+  # everything that is *only* on "internal network" cannot talk to WAN
+  private:
+    internal: true
+  # add this network to a container to make it talk to the rest of the world
+  public:

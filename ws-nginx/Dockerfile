@@ -67,4 +67,4 @@ ENV LUA_CPATH="/usr/local/openresty/site/lualib/?.so;/usr/local/openresty/lualib
 COPY html /usr/local/openresty/nginx/html
 COPY templates /usr/local/openresty/nginx/templates
 COPY conf/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
-COPY conf/conf.d/default-traefik.conf /etc/nginx/conf.d/default.conf
+COPY conf/conf.d/default.conf /etc/nginx/conf.d/default.conf

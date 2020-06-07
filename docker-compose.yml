@@ -29,6 +29,29 @@ services:
       # - ./fp-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf 
       # this differs from a normal -v folder mount to maintaine with/out traefik 
       # - ./fp-server/conf/conf.d/default-traefik.conf:/etc/nginx/conf.d/default.conf
+  ws-announce:
+    build:
+      context: ws-announce
+      dockerfile: Dockerfile
+    image: registry.gitlab.com/aperez4/ws/ws-announce:latest
+    networks:
+      private:
+        # the aliases are not required, but are useful if the applications want to internally
+        # reference each other by host name
+        aliases:
+        - "ws-announce"
+      public:
+    ports:
+      - "9803-9805:10011"
+    labels:
+      - "constraints.zone=fp"
+      - "traefik.http.routers.fp-orders.entrypoints=http"
+      - "traefik.http.routers.fp-orders.rule=PathPrefix(`/api/v1/tea`)"
+      - "traefik.http.services.fp-orders.loadbalancer.server.port=10011"
+      - "traefik.backend=fp-orders"
+      - "traefik.port=10011"
+      - "traefik.backend.healthcheck.path=/health"
+      - "traefik.enable=true"
 
 networks:
   # everything that is *only* on "internal network" cannot talk to WAN
